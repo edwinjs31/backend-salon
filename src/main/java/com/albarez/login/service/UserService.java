@@ -1,7 +1,8 @@
-package com.albarez.login.user;
+package com.albarez.login.service;
 
-import com.albarez.login.registration.token.ConfirmationToken;
-import com.albarez.login.registration.token.ConfirmationTokenService;
+import com.albarez.login.model.User;
+import com.albarez.login.model.ConfirmationToken;
+import com.albarez.login.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

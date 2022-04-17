@@ -1,6 +1,6 @@
-package com.albarez.login.registration.token;
+package com.albarez.login.model;
 
-import com.albarez.login.user.User;
+import com.albarez.login.model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

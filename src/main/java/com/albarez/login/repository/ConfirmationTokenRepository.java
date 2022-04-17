@@ -1,5 +1,6 @@
-package com.albarez.login.registration.token;
+package com.albarez.login.repository;
 
+import com.albarez.login.model.ConfirmationToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

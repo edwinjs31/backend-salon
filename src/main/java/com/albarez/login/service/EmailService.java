@@ -1,5 +1,6 @@
-package com.albarez.login.email;
+package com.albarez.login.service;
 
+import com.albarez.login.repository.EmailSender;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,8 @@
-package com.albarez.login.registration;
+package com.albarez.login.controller;
 
+import com.albarez.login.model.RegistrationRequest;
+import com.albarez.login.service.RegistrationService;
 import lombok.AllArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

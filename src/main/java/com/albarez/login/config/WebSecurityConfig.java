@@ -1,6 +1,6 @@
-package com.albarez.login.security.config;
+package com.albarez.login.config;
 
-import com.albarez.login.user.UserService;
+import com.albarez.login.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

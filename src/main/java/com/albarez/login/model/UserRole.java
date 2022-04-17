@@ -1,4 +1,4 @@
-package com.albarez.login.user;
+package com.albarez.login.model;
 
 public enum UserRole {
     USER,

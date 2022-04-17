@@ -1,11 +1,10 @@
-package com.albarez.login.registration;
+package com.albarez.login.service;
 
-import com.albarez.login.user.User;
-import com.albarez.login.user.UserRole;
-import com.albarez.login.user.UserService;
-import com.albarez.login.email.EmailSender;
-import com.albarez.login.registration.token.ConfirmationToken;
-import com.albarez.login.registration.token.ConfirmationTokenService;
+import com.albarez.login.model.User;
+import com.albarez.login.model.UserRole;
+import com.albarez.login.model.RegistrationRequest;
+import com.albarez.login.repository.EmailSender;
+import com.albarez.login.model.ConfirmationToken;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

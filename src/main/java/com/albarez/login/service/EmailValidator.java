@@ -1,4 +1,4 @@
-package com.albarez.login.registration;
+package com.albarez.login.service;
 
 import org.springframework.stereotype.Service;
 

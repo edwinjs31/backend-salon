@@ -1,6 +1,7 @@
-package com.albarez.login.user;
+package com.albarez.login.repository;
 
 
+import com.albarez.login.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

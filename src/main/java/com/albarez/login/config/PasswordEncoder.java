@@ -1,4 +1,4 @@
-package com.albarez.login.security;
+package com.albarez.login.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
