@@ -1,4 +1,4 @@
-package com.albarez.login.appuser;
+package com.albarez.login.user;
 
 import com.albarez.login.registration.token.ConfirmationToken;
 import com.albarez.login.registration.token.ConfirmationTokenService;
@@ -14,33 +14,33 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class AppUserService implements UserDetailsService {
+public class UserService implements UserDetailsService {
 
     private final static String USER_NOT_FOUND_MSG = "Usuario con email %s no encontrado";
-    private final AppUserRepository appUserRepository;
+    private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ConfirmationTokenService confirmationTokenService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return appUserRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
     }
 
-    public String singUpUser(AppUser appUser) {
+    public String singUpUser(User user) {
 
-        boolean isUserExist = appUserRepository.findByEmail(appUser.getEmail()).isPresent();
+        boolean isUserExist = userRepository.findByEmail(user.getEmail()).isPresent();
 
         if (isUserExist) {
             //TODO verificacion de atributos e la misma y confirmar el correo.
-            throw new IllegalStateException("Usuario con email " + appUser.getEmail() + " ya existe");
+            throw new IllegalStateException("Usuario con email " + user.getEmail() + " ya existe");
         }
 
-        String encodedPassword = bCryptPasswordEncoder.encode(appUser.getPassword());
-        appUser.setPassword(encodedPassword);
-        appUserRepository.save(appUser);
+        String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
 
         String token = UUID.randomUUID().toString();
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), appUser);
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
 
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         //TODO: send email.
@@ -48,6 +48,6 @@ public class AppUserService implements UserDetailsService {
     }
 
     public int enableAppUser(String email) {
-       return appUserRepository.enableAppUser(email);
+       return userRepository.enableAppUser(email);
     }
 }

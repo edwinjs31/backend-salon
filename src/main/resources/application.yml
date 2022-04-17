@@ -6,7 +6,7 @@ server:
 spring:
   datasource:
     password: 1990
-    url: jdbc:mysql://localhost:3306/registration
+    url: jdbc:mysql://localhost:3306/appsalon_db
     username: root
   jpa:
     hibernate:

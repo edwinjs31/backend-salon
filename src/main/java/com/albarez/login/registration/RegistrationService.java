@@ -1,8 +1,8 @@
 package com.albarez.login.registration;
 
-import com.albarez.login.appuser.AppUser;
-import com.albarez.login.appuser.AppUserRole;
-import com.albarez.login.appuser.AppUserService;
+import com.albarez.login.user.User;
+import com.albarez.login.user.UserRole;
+import com.albarez.login.user.UserService;
 import com.albarez.login.email.EmailSender;
 import com.albarez.login.registration.token.ConfirmationToken;
 import com.albarez.login.registration.token.ConfirmationTokenService;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class RegistrationService {
 
-    private final AppUserService appUserService;
+    private final UserService userService;
     private final EmailValidator emailValidator;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
@@ -29,12 +29,12 @@ public class RegistrationService {
             throw new IllegalArgumentException("Email inválido");
         }
 
-        String token = appUserService.singUpUser(new AppUser(
+        String token = userService.singUpUser(new User(
                 request.getFirstName(),
                 request.getLastName(),
                 request.getEmail(),
                 request.getPassword(),
-                AppUserRole.USER)
+                UserRole.USER)
         );
 
         String link = "http://localhost:8080/api/v1/registration/confirm?token=" + token;
@@ -60,7 +60,7 @@ public class RegistrationService {
         }
 
         confirmationTokenService.setConfirmedAt(token);
-        appUserService.enableAppUser(confirmationToken.getAppUser().getEmail());
+        userService.enableAppUser(confirmationToken.getUser().getEmail());
 
         return "Email confirmado";
     }

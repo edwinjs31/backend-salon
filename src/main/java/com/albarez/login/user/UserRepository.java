@@ -1,4 +1,4 @@
-package com.albarez.login.appuser;
+package com.albarez.login.user;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,13 +11,13 @@ import java.util.Optional;
 
 @Repository
 @Transactional(readOnly = true)
-public interface AppUserRepository extends JpaRepository<AppUser, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<AppUser> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     @Transactional
     @Modifying
-    @Query("UPDATE AppUser u SET u.enabled = TRUE WHERE u.email = ?1")
+    @Query("UPDATE User u SET u.enabled = TRUE WHERE u.email = ?1")
     int enableAppUser(String email);
 
 }

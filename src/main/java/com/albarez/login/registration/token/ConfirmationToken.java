@@ -1,6 +1,6 @@
 package com.albarez.login.registration.token;
 
-import com.albarez.login.appuser.AppUser;
+import com.albarez.login.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,13 +39,13 @@ public class ConfirmationToken {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
 
-    private AppUser appUser;
+    private User user;
 
 
-    public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt,AppUser appUser) {
+    public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiresAt, User user) {
         this.token = token;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.appUser = appUser;
+        this.user = user;
     }
 }
