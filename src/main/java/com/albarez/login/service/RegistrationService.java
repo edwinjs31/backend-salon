@@ -3,7 +3,7 @@ package com.albarez.login.service;
 import com.albarez.login.model.User;
 import com.albarez.login.model.UserRole;
 import com.albarez.login.model.RegistrationRequest;
-import com.albarez.login.repository.EmailSender;
+import com.albarez.login.email.EmailSender;
 import com.albarez.login.model.ConfirmationToken;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

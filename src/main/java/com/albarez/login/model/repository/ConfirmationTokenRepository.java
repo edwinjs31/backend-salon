@@ -1,4 +1,4 @@
-package com.albarez.login.repository;
+package com.albarez.login.model.repository;
 
 import com.albarez.login.model.ConfirmationToken;
 import org.springframework.data.jpa.repository.JpaRepository;

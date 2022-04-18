@@ -2,7 +2,7 @@ package com.albarez.login.service;
 
 import com.albarez.login.model.User;
 import com.albarez.login.model.ConfirmationToken;
-import com.albarez.login.repository.UserRepository;
+import com.albarez.login.model.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,6 +27,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
     }
 
+    //Registro de usuario
     public String singUpUser(User user) {
 
         boolean isUserExist = userRepository.findByEmail(user.getEmail()).isPresent();
@@ -48,7 +49,23 @@ public class UserService implements UserDetailsService {
         return token;
     }
 
+    //Confirmacion de registro y modifica a activado
     public void enableUser(String email) {
         userRepository.enableUser(email);
+    }
+
+    //recuperacion de contraseña.
+    public String resetPasswordToken(String email,User user) {
+        String token = UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        //TODO: send email.
+        return token;
+    }
+
+    public void updatePassword(String password, String email) {
+        String encodedPassword = bCryptPasswordEncoder.encode(password);
+        userRepository.updatePassword(encodedPassword, email);
     }
 }

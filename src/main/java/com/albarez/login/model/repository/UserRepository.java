@@ -1,4 +1,4 @@
-package com.albarez.login.repository;
+package com.albarez.login.model.repository;
 
 
 import com.albarez.login.model.User;
@@ -21,5 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User u SET u.enabled = TRUE WHERE u.email = ?1")
     void enableUser(String email);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.password = ?1 WHERE u.email = ?2")
+    void updatePassword(String password, String email);
 
 }
