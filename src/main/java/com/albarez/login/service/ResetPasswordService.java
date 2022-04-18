@@ -22,7 +22,7 @@ public class ResetPasswordService {
     public String sendEmailForgotPassword(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException(String.format(USER_NOT_FOUND_MSG, email)));
         String token = userService.resetPasswordToken(email, user);
-        String link = "http://localhost:8080/api/v1/registration/reset-password/confirm?token=" + token;
+        String link = "http://localhost:8080/api/v1/auth/forgot-password/reset?token=" + token;
         emailSender.send(email, buildEmail(user.getFirstName(), link));
 
         return token;
@@ -59,7 +59,7 @@ public class ResetPasswordService {
                 "<p>Si hiciste esta petición, haz clic en el siguiente enlace, si no hiciste esta petición puedes ignorar este correo.</p>" +
                 "<p> <a href=\"" + link + "\">Restablecer contraseña</a> </p>" +
                 "<p>Saludos,</p>" +
-                "<p>Equipo de Login</p>";
+                "<p>Equipo de AppSalon</p>";
     }
 }
 
