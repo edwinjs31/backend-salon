@@ -1,4 +1,4 @@
-package com.albarez.login.model;
+package com.albarez.login.request;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

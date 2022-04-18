@@ -1,4 +1,4 @@
-package com.albarez.login.model.repository;
+package com.albarez.login.repository;
 
 
 import com.albarez.login.model.User;

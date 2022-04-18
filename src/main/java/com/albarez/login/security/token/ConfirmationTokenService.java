@@ -1,7 +1,5 @@
-package com.albarez.login.service;
+package com.albarez.login.security.token;
 
-import com.albarez.login.model.ConfirmationToken;
-import com.albarez.login.model.repository.ConfirmationTokenRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

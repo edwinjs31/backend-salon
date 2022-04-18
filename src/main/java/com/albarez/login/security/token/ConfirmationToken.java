@@ -1,4 +1,4 @@
-package com.albarez.login.model;
+package com.albarez.login.security.token;
 
 import com.albarez.login.model.User;
 import lombok.Getter;
