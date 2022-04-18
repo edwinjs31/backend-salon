@@ -1,6 +1,6 @@
 package com.albarez.login.config;
 
-import com.albarez.login.service.UserDetailsServiceImpl;
+import com.albarez.login.service.MyUserDetailsService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final UserDetailsServiceImpl userService;
+    private final MyUserDetailsService userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override

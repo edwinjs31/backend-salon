@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class MyUserDetailsService implements UserDetailsService {
 
     private final static String USER_NOT_FOUND_MSG = "Usuario con email %s no encontrado";
     private final UserRepository userRepository;
@@ -33,6 +33,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public ResponseEntity<?> singin(LoginRequest request) {
         User userFound = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, request.getEmail())));
         if (bCryptPasswordEncoder.matches(request.getPassword(), userFound.getPassword())) {
+            if (!userFound.isEnabled()) {
+                return ResponseEntity.badRequest().body("Usuario no ha sido confirmado");
+            }
             return ResponseEntity.ok(userFound);
         }
         return ResponseEntity.badRequest().body("Contraseña incorrecta");

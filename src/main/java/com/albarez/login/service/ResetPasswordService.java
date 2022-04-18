@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class ResetPasswordService {
 
     private final static String USER_NOT_FOUND_MSG = "Usuario con email %s no encontrado";
-    private final UserDetailsServiceImpl userService;
+    private final MyUserDetailsService userService;
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;

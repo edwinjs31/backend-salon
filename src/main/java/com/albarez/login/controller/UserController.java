@@ -3,7 +3,7 @@ package com.albarez.login.controller;
 import com.albarez.login.request.LoginRequest;
 import com.albarez.login.request.NewPasswordRequest;
 import com.albarez.login.request.RegistrationRequest;
-import com.albarez.login.service.UserDetailsServiceImpl;
+import com.albarez.login.service.MyUserDetailsService;
 import com.albarez.login.service.UserService;
 import com.albarez.login.service.ResetPasswordService;
 import lombok.AllArgsConstructor;
@@ -16,13 +16,15 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final MyUserDetailsService userDetailsService;
     private final ResetPasswordService resetPasswordService;
 
+    //http://localhost:8080/api/v1/signin
     @PostMapping(path = "/signin")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         return userDetailsService.singin(request);
     }
+
     //http://localhost:8080/api/v1/signup
     @PostMapping(path = "/signup")
     public String register(@RequestBody RegistrationRequest request) {

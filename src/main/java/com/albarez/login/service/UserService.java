@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserService {
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private final MyUserDetailsService userDetailsService;
     private final EmailValidator emailValidator;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
@@ -34,7 +34,7 @@ public class UserService {
                 request.getLastName(),
                 request.getEmail(),
                 request.getPassword(),
-                UserRole.USER)
+                UserRole.ROLE_USER)
         );
 
         String link = "http://localhost:8080/api/v1/auth/signup/confirm?token=" + token;
