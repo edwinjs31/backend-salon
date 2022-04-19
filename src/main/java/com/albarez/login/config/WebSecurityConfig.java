@@ -1,5 +1,6 @@
 package com.albarez.login.config;
 
+import com.albarez.login.security.jwt.JWTAuthorizationFilter;
 import com.albarez.login.service.MyUserDetailsService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @AllArgsConstructor
@@ -22,13 +24,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().and().csrf().disable()
+                .csrf().disable()
+                .addFilterAfter(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests()
                 .antMatchers("/api/v*/auth/**")
                 .permitAll()
                 .anyRequest()
-                .authenticated().and()
-                .formLogin();
+                .authenticated();
+                //.and().formLogin();
     }
 
     @Override

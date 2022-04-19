@@ -2,6 +2,7 @@ package com.albarez.login.service;
 
 import com.albarez.login.model.User;
 import com.albarez.login.request.LoginRequest;
+import com.albarez.login.security.jwt.JwtUtil;
 import com.albarez.login.security.token.ConfirmationToken;
 import com.albarez.login.repository.UserRepository;
 import com.albarez.login.security.token.ConfirmationTokenService;
@@ -24,6 +25,7 @@ public class MyUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ConfirmationTokenService confirmationTokenService;
+    private final JwtUtil jwtUtil;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -32,13 +34,19 @@ public class MyUserDetailsService implements UserDetailsService {
 
     public ResponseEntity<?> singin(LoginRequest request) {
         User userFound = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, request.getEmail())));
-        if (bCryptPasswordEncoder.matches(request.getPassword(), userFound.getPassword())) {
-            if (!userFound.isEnabled()) {
-                return ResponseEntity.badRequest().body("Usuario no ha sido confirmado");
+
+        if (userFound.isEnabled()) {
+            if (bCryptPasswordEncoder.matches(request.getPassword(), userFound.getPassword())) {
+                String token = jwtUtil.getJWTToken(userFound.getEmail());
+                userFound.setJwtToken(token);
+                userRepository.updateJwtToken(token, userFound.getEmail());
+                return ResponseEntity.ok(token);
+            } else {
+                return ResponseEntity.badRequest().body("Contraseña incorrecta");
             }
-            return ResponseEntity.ok(userFound);
+        } else {
+            return ResponseEntity.badRequest().body("Usuario no ha sido confirmado");
         }
-        return ResponseEntity.badRequest().body("Contraseña incorrecta");
     }
 
     //Registro de usuario
