@@ -35,7 +35,6 @@ public class User implements UserDetails {
     private UserRole userRole;
     private Boolean locked = false;
     private Boolean enabled = false;
-    private String jwtToken;
 
     public User(String firstName, String lastName, String email, String password, UserRole userRole) {
         this.firstName = firstName;

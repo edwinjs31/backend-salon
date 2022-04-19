@@ -22,18 +22,19 @@ public class AuthController {
     @Autowired
     private final ResetPasswordService resetPasswordService;
 
-    //http://localhost:8080/api/v1/signin
+    //http://localhost:8080/api/v1/auth/signin
     @PostMapping(path = "/signin")
     public ResponseEntity<?> login(@Validated @RequestBody LoginRequest request) {
         return userService.authenticateUser(request.getEmail(), request.getPassword());
     }
 
-    //http://localhost:8080/api/v1/signup
+    //http://localhost:8080/api/v1/auth/signup
     @PostMapping(path = "/signup")
     public ResponseEntity<?> register(@Validated @RequestBody RegistrationRequest request) {
         return userService.register(request);
     }
 
+    //http://localhost:8080/api/v1/auth/signout
     @PostMapping("/signout")
     public ResponseEntity<?> logoutUser() {
         return userService.logoutUser();
@@ -49,13 +50,13 @@ public class AuthController {
 
     //http://localhost:8080/api/v1/auth/forgot-password?email=ejemplo@gmail.com
     @PostMapping(path = "/forgot-password")
-    public String sendEmail(@RequestParam("email") String email) {
+    public ResponseEntity<?> sendEmail(@RequestParam("email") String email) {
         return resetPasswordService.sendEmailForgotPassword(email);
     }
 
     //http://localhost:8080/api/v1/auth/forgot-password/reset?token=123456789
     @PostMapping(path = "forgot-password/reset")
-    public String resetConfirm(@RequestBody NewPasswordRequest passwordRequest, @RequestParam("token") String token) {
+    public ResponseEntity<?> resetConfirm(@RequestBody NewPasswordRequest passwordRequest, @RequestParam("token") String token) {
         return resetPasswordService.confirmToken(passwordRequest, token);
     }
 

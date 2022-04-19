@@ -4,9 +4,11 @@ import com.albarez.login.email.EmailSender;
 import com.albarez.login.model.*;
 import com.albarez.login.repository.UserRepository;
 import com.albarez.login.request.NewPasswordRequest;
+import com.albarez.login.response.MessageResponse;
 import com.albarez.login.security.token.ConfirmationToken;
 import com.albarez.login.security.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -22,17 +24,17 @@ public class ResetPasswordService {
     private final EmailSender emailSender;
     private final UserService userService;
 
-    public String sendEmailForgotPassword(String email) {
+    public ResponseEntity<?> sendEmailForgotPassword(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException(String.format(USER_NOT_FOUND_MSG, email)));
         String token = userService.resetPasswordToken(user);
         String link = "http://localhost:8080/api/v1/auth/forgot-password/reset?token=" + token;
         emailSender.send(email, buildEmail(user.getFirstName(), link));
 
-        return token;
+        return ResponseEntity.ok(new MessageResponse("Se ha enviado un correo a " + email + " con el link para restablecer la contraseña "+token));
     }
 
     @Transactional
-    public String confirmToken(NewPasswordRequest request, String token) {
+    public ResponseEntity<?> confirmToken(NewPasswordRequest request, String token) {
 
         ConfirmationToken confirmationToken = confirmationTokenService.getToken(token).orElseThrow(
                 () -> new IllegalStateException("Token no encontrado"));
@@ -53,7 +55,7 @@ public class ResetPasswordService {
         userService.updatePassword(request.getPassword(), confirmationToken.getUser().getEmail());
         userRepository.enableUser(confirmationToken.getUser().getEmail());
 
-        return "Password reset successfully";
+        return ResponseEntity.ok(new MessageResponse("Contraseña actualizada"));
     }
 
     private String buildEmail(String firstName, String link) {

@@ -47,6 +47,9 @@ public class UserService {
 
     public ResponseEntity<?> authenticateUser(String email, String password) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        if (!authentication.isAuthenticated()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Usuario o contraseña incorrectos"));
+        }
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User userDetails = (User) authentication.getPrincipal();
@@ -61,7 +64,7 @@ public class UserService {
         if (!emailValidator.test(request.getEmail()))
             return ResponseEntity.badRequest().body(new MessageResponse("Error: El email no es válido"));
 
-        User user = new User( request.getFirstName(),
+        User user = new User(request.getFirstName(),
                 request.getLastName(),
                 request.getEmail(),
                 bCryptPasswordEncoder.encode(request.getPassword()),
@@ -75,7 +78,7 @@ public class UserService {
         String link = "http://localhost:8080/api/v1/auth/signup/confirm?token=" + token;
         emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));
 
-        return ResponseEntity.ok(new MessageResponse("Te has registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta." + token));
+        return ResponseEntity.ok(new MessageResponse("Te has registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta. " + token));
     }
 
     public ResponseEntity<?> logoutUser() {
@@ -97,6 +100,7 @@ public class UserService {
         String encodedPassword = bCryptPasswordEncoder.encode(password);
         userRepository.updatePassword(encodedPassword, email);
     }
+
     @Transactional
     public String confirmToken(String token) {
 
