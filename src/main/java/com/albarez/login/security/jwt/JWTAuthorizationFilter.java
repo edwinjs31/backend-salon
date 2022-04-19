@@ -1,11 +1,13 @@
 package com.albarez.login.security.jwt;
 
-import com.albarez.login.service.MyUserDetailsService;
-import io.jsonwebtoken.*;
+import com.albarez.login.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -15,15 +17,21 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
     private final String HEADER = "Authorization";
     private final String PREFIX = "Bearer ";
     private final String SECRET = "mySecretKey";
+    //opc2
+    @Autowired
+    private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(JWTAuthorizationFilter.class);
+    //opc1
+    /*
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         try {
@@ -48,9 +56,37 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     private Claims validateToken(HttpServletRequest request) {
         String jwtToken = request.getHeader(HEADER).replace(PREFIX, "");
         return Jwts.parser().setSigningKey(SECRET.getBytes()).parseClaimsJws(jwtToken).getBody();
+    }*/
+
+    //ipc2
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        try {
+            String jwt = parseJwt(request);
+            if (jwt != null && jwtUtil.validateJwtToken(jwt)) {
+                String email = jwtUtil.getEmailFromJwtToken(jwt);
+                UserDetails userDetails = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails,
+                                null,
+                                userDetails.getAuthorities());
+
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception e) {
+            logger.error("No se puede configurar la autenticacion del usuario", e);
+        }
+        filterChain.doFilter(request, response);
+    }
+    private String parseJwt(HttpServletRequest request) {
+        return jwtUtil.getJwtFromCookies(request);
     }
 
-
+    //opc1
+    /*
     private void setUpSpringAuthentication(Claims claims) {
         @SuppressWarnings("unchecked")
         List<String> authorities = (List) claims.get("authorities");
@@ -65,6 +101,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         String authenticationHeader = request.getHeader(HEADER);
         // si no existe el header(false), o si no tiene el prefijo(false)
         return authenticationHeader != null && authenticationHeader.startsWith(PREFIX);
-    }
+    }*/
 
 }

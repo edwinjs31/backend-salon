@@ -17,10 +17,10 @@ import java.time.LocalDateTime;
 public class ResetPasswordService {
 
     private final static String USER_NOT_FOUND_MSG = "Usuario con email %s no encontrado";
-    private final MyUserDetailsService userService;
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
+    private final UserService userService;
 
     public String sendEmailForgotPassword(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException(String.format(USER_NOT_FOUND_MSG, email)));
@@ -51,7 +51,7 @@ public class ResetPasswordService {
 
         confirmationTokenService.setConfirmedAt(token);
         userService.updatePassword(request.getPassword(), confirmationToken.getUser().getEmail());
-        userService.enableUser(confirmationToken.getUser().getEmail());
+        userRepository.enableUser(confirmationToken.getUser().getEmail());
 
         return "Password reset successfully";
     }

@@ -1,53 +1,78 @@
 package com.albarez.login.security.jwt;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import com.albarez.login.model.User;
+import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Component
 public class JwtUtil implements Serializable {
     @Serial
     private static final long serialVersionUID = -3301605591108950415L;
-    private final String SECRET_KEY = "mySecretKey";
+    private final String JWT_SECRET = "mySecretKey";
+    private final long EXPIRATION_TIME = 600000; // 10 days
+    //op2
+    private final String JWT_COOKIE_NAME = "jwt";
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
-    public String generateToken(String username, List<GrantedAuthority> grantedAuthorities) {
-        List<String> authorities = grantedAuthorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+    public String getJwtFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, JWT_COOKIE_NAME);
+        if (cookie != null) {
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
+    public ResponseCookie generateJwtCookie(User userPrincipal) {
+        String jwt = generateTokenFromEmail(userPrincipal.getEmail());
+        return ResponseCookie.from(JWT_COOKIE_NAME, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
+    }
+    public ResponseCookie getCleanJwtCookie() {
+        return ResponseCookie.from(JWT_COOKIE_NAME, null).path("/api").build();
+    }
+    public String getEmailFromJwtToken(String token) {
+        return Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token).getBody().getSubject();
+    }
+    public boolean validateJwtToken(String authToken) {
+        try {
+            Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(authToken);
+            return true;
+        } catch (SignatureException e) {
+            logger.error("Invalid JWT signature: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT token is expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("JWT token is unsupported: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
+        }
+        return false;
+    }
 
+    public String generateTokenFromEmail(String email) {
         return Jwts.builder()
-                .setSubject(username)
-                .claim("authorities", authorities)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 864000000))
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
-    }
 
-    public boolean validateToken(String authToken) {
-        try {
-            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(authToken);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    //El único metodo que está ciento utilizado de toda la clase
-    public String getJWTToken(String username) {
+    //op1 El único metodo que está ciento utilizado de toda la clase
+    /*public String getJWTToken(String email ) {
 
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                 .commaSeparatedStringToAuthorityList("ROLE_USER");
@@ -55,16 +80,16 @@ public class JwtUtil implements Serializable {
         String token = Jwts
                 .builder()
                 .setId("softtekJWT")
-                .setSubject(username)
+                .setSubject(email)
                 .claim("authorities",
                         grantedAuthorities.stream()
                                 .map(GrantedAuthority::getAuthority)
                                 .collect(Collectors.toList()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 600000))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512,
-                        SECRET_KEY.getBytes()).compact();
+                        JWT_SECRET.getBytes()).compact();
 
         return "Bearer " + token;
-    }
+    }*/
 }
