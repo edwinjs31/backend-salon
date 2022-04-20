@@ -1,4 +1,4 @@
-package com.albarez.login.response;
+package com.albarez.login.payload.response;
 
 public class MessageResponse {
     private String message;

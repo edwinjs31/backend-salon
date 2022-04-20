@@ -1,8 +1,8 @@
 package com.albarez.login.controller;
 
 import com.albarez.login.request.LoginRequest;
-import com.albarez.login.request.NewPasswordRequest;
-import com.albarez.login.request.RegistrationRequest;
+import com.albarez.login.payload.request.NewPasswordRequest;
+import com.albarez.login.payload.request.RegistrationRequest;
 import com.albarez.login.service.UserService;
 import com.albarez.login.service.ResetPasswordService;
 import lombok.AllArgsConstructor;

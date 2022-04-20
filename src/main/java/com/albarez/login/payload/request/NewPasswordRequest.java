@@ -1,4 +1,4 @@
-package com.albarez.login.request;
+package com.albarez.login.payload.request;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -9,10 +9,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class RegistrationRequest {
-
-    private final String firstName;
-    private final String lastName;
-    private final String email;
+public class NewPasswordRequest {
     private final String password;
+    private final String passwordConfirmation;
 }
