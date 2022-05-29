@@ -1,7 +1,10 @@
 package com.albarez.login.service;
 
+import com.albarez.login.model.Role;
 import com.albarez.login.model.User;
 import com.albarez.login.model.UserRole;
+import com.albarez.login.payload.response.UserInfoResponse;
+import com.albarez.login.repository.RoleRepository;
 import com.albarez.login.repository.UserRepository;
 import com.albarez.login.payload.request.RegistrationRequest;
 import com.albarez.login.email.EmailSender;
@@ -17,12 +20,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -30,19 +37,21 @@ import java.util.UUID;
 public class UserService {
 
     @Autowired
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    AuthenticationManager authenticationManager;
     @Autowired
-    private final UserRepository userRepository;
+    UserRepository userRepository;
     @Autowired
-    private final EmailValidator emailValidator;
+    RoleRepository roleRepository;
     @Autowired
-    private final ConfirmationTokenService confirmationTokenService;
+    BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
-    private final EmailSender emailSender;
+    EmailValidator emailValidator;
     @Autowired
-    private final AuthenticationManager authenticationManager;
+    ConfirmationTokenService confirmationTokenService;
     @Autowired
-    private final JwtUtil jwtUtil;
+    EmailSender emailSender;
+    @Autowired
+    JwtUtil jwtUtil;
 
 
     public ResponseEntity<?> authenticateUser(String email, String password) {
@@ -52,31 +61,66 @@ public class UserService {
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User userDetails = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         ResponseCookie jwtCookie = jwtUtil.generateJwtCookie(userDetails);
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(userDetails);
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).toList();
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(new UserInfoResponse( userDetails.getFirstName(),userDetails.getLastName(),userDetails.getEmail(), roles));
     }
 
-    public ResponseEntity<?> register(RegistrationRequest request) {
-        if (userRepository.existsByEmail(request.getEmail()))
+    public ResponseEntity<?> register(RegistrationRequest registrationRequest) {
+        if (userRepository.existsByEmail(registrationRequest.getEmail()))
             return ResponseEntity.badRequest().body(new MessageResponse("Error: El email ya está registrado"));
 
-        if (!emailValidator.test(request.getEmail()))
+        if (!emailValidator.test(registrationRequest.getEmail()))
             return ResponseEntity.badRequest().body(new MessageResponse("Error: El email no es válido"));
 
-        User user = new User(request.getFirstName(),
-                request.getLastName(),
-                request.getEmail(),
-                bCryptPasswordEncoder.encode(request.getPassword()),
-                UserRole.ROLE_USER);
+        //Se crea el usuario
+        User user = new User(registrationRequest.getFirstName(),
+                registrationRequest.getLastName(),
+                registrationRequest.getEmail(),
+                bCryptPasswordEncoder.encode(registrationRequest.getPassword()));
+        Set<String> userRoles = registrationRequest.getRole();
+        Set<Role> roles = new HashSet<>();
+
+        if (userRoles == null) {
+            Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(userRole);
+        } else {
+            userRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByName(UserRole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(adminRole);
+
+                        break;
+                    case "super":
+                        Role modRole = roleRepository.findByName(UserRole.ROLE_SUPER_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(modRole);
+
+                        break;
+                    default:
+                        Role userRole = roleRepository.findByName(UserRole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(userRole);
+                }
+            });
+        }
+        //Se guarda el usuario en la base de datos
+        user.setRoles(roles);
         userRepository.save(user);
 
+        //Se crea el token de confirmación y se envía por correo
         String token = UUID.randomUUID().toString();
         ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
-
         String link = "http://localhost:8080/api/v1/auth/signup/confirm?token=" + token;
-        emailSender.send(request.getEmail(), buildEmail(request.getFirstName(), link));
+        emailSender.send(registrationRequest.getEmail(), buildEmail(registrationRequest.getFirstName(), link));
 
         return ResponseEntity.ok(new MessageResponse("Te has registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta. " + token));
     }

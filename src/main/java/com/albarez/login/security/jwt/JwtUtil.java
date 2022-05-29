@@ -1,12 +1,10 @@
 package com.albarez.login.security.jwt;
 
-import com.albarez.login.model.User;
+import com.albarez.login.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
@@ -15,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 
 @Component
@@ -37,7 +34,7 @@ public class JwtUtil implements Serializable {
         }
     }
 
-    public ResponseCookie generateJwtCookie(User userPrincipal) {
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
         String jwt = generateTokenFromEmail(userPrincipal.getEmail());
         return ResponseCookie.from(JWT_COOKIE_NAME, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
     }
@@ -70,8 +67,8 @@ public class JwtUtil implements Serializable {
 
     public String generateTokenFromEmail(String email) {
         //esta parte lo agregue falta probarlo
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-                .commaSeparatedStringToAuthorityList("ROLE_USER");
+        /*List<GrantedAuthority> grantedAuthorities = AuthorityUtils
+                .commaSeparatedStringToAuthorityList("ROLE_USER");*/
 
         return Jwts.builder()
                 .setSubject(email)

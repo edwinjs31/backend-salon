@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -15,6 +16,8 @@ import java.io.Serializable;
 public class LoginRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private final String email;
-    private final String password;
+    @NotBlank
+    private String email;
+    @NotBlank
+    private String password;
 }

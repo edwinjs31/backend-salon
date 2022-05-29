@@ -5,11 +5,18 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 public class NewPasswordRequest {
-    private final String password;
-    private final String passwordConfirmation;
+    @NotBlank
+    @Size(min = 6, max = 40)
+    private  String password;
+    @NotBlank
+    @Size(min = 6, max = 40)
+    private  String passwordConfirmation;
 }

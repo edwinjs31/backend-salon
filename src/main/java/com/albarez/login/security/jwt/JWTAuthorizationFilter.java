@@ -1,13 +1,12 @@
 package com.albarez.login.security.jwt;
 
-import com.albarez.login.repository.UserRepository;
+import com.albarez.login.service.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,15 +19,15 @@ import java.io.IOException;
 
 @Component
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
-    private final String HEADER = "Authorization";
-    private final String PREFIX = "Bearer ";
-    private final String SECRET = "mySecretKey";
+    //private final String HEADER = "Authorization";
+    //private final String PREFIX = "Bearer ";
+    //private final String SECRET = "mySecretKey";
     //opc2
     @Autowired
-    private JwtUtil jwtUtil;
+    JwtUtil jwtUtil;
 
     @Autowired
-    private UserRepository userRepository;
+    UserDetailsServiceImpl userDetailsService;
     private static final Logger logger = LoggerFactory.getLogger(JWTAuthorizationFilter.class);
     //opc1
     /*
@@ -66,8 +65,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtil.validateJwtToken(jwt)) {
                 String email = jwtUtil.getEmailFromJwtToken(jwt);
-                UserDetails userDetails = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails,
                                 null,

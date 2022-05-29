@@ -1,6 +1,7 @@
 package com.albarez.login.controller;
 
-import com.albarez.login.request.LoginRequest;
+
+import com.albarez.login.payload.request.LoginRequest;
 import com.albarez.login.payload.request.NewPasswordRequest;
 import com.albarez.login.payload.request.RegistrationRequest;
 import com.albarez.login.service.UserService;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(path = "api/v1/auth")
@@ -18,20 +21,20 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Autowired
-    private final UserService userService;
+    UserService userService;
     @Autowired
-    private final ResetPasswordService resetPasswordService;
+    ResetPasswordService resetPasswordService;
 
     //http://localhost:8080/api/v1/auth/signin
     @PostMapping(path = "/signin")
-    public ResponseEntity<?> login(@Validated @RequestBody LoginRequest request) {
-        return userService.authenticateUser(request.getEmail(), request.getPassword());
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
     }
 
     //http://localhost:8080/api/v1/auth/signup
     @PostMapping(path = "/signup")
-    public ResponseEntity<?> register(@Validated @RequestBody RegistrationRequest request) {
-        return userService.register(request);
+    public ResponseEntity<?> register(@Valid @RequestBody RegistrationRequest registrationRequest) {
+        return userService.register(registrationRequest);
     }
 
     //http://localhost:8080/api/v1/auth/signout
